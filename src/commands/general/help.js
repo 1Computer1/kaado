@@ -36,13 +36,10 @@ class HelpCommand extends Command {
     }
 
     exec(message, { game }) {
-        const avatar = message.author.avatarURL('jpg', 128) || message.author.defaultAvatarURL;
-
         if (!game) {
             const prefix = this.handler.prefix();
 
             const embed = this.client.util.embed()
-            .setAuthor(`${message.author.tag} :: List of Games`, avatar)
             .addField('Texas Hold\'em Poker', [
                 'Poker! Everyone loves poker!',
                 'Don\'t bet away all your money!',
@@ -55,7 +52,6 @@ class HelpCommand extends Command {
         const info = this.getDescription(game) || {};
 
         const embed = this.client.util.embed()
-        .setAuthor(`${message.author.tag} :: About Poker`, avatar)
         .addField('About', info.about || 'No description')
         .addField('Actions', info.actions || 'No actions.');
 
