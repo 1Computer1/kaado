@@ -34,9 +34,8 @@ class KaadoClient extends AkairoClient {
                 return this.commandHandler.modules.find(cmd => {
                     if (cmd.category.id !== 'games') return false;
 
-                    for (let alias of cmd.aliases) {
-                        alias = alias.toLowerCase();
-                        if (word.toLowerCase().startsWith(alias)) {
+                    for (const alias of cmd.aliases) {
+                        if (word.toLowerCase() === alias.toLowerCase()) {
                             return true;
                         }
                     }
