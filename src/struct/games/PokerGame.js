@@ -44,7 +44,7 @@ class PokerGame extends Game {
         const embed = this.client.util.embed()
         .addField(`Round ${this.currentRound + 1}`, [
             text,
-            `**${this.currentPlayer.displayName}** has a balance of $**${this.playerBalances.get(this.currentPlayer.id)}**.`,
+            `**${this.currentPlayer.user.tag}** has a balance of $**${this.playerBalances.get(this.currentPlayer.id)}**.`,
             '',
             `Type \`${prefix}p bet <amount>\` to bet.`,
             `Type \`${prefix}p check\` to check.`,
@@ -111,7 +111,7 @@ class PokerGame extends Game {
             const embed = this.client.util.embed()
             .addField('Game Results', [
                 'Everyone decided to fold!',
-                `**${this.getPlayer(0).displayName}** wins $**${this.tableMoney}**!`
+                `**${this.getPlayer(0).user.tag}** wins $**${this.tableMoney}**!`
             ]);
 
             const options = {};
@@ -144,7 +144,7 @@ class PokerGame extends Game {
         }
 
         const winners = Hand.winners(hands).map(hand => {
-            return this.guild.member(hand.player).displayName;
+            return this.guild.member(hand.player).user.tag;
         });
 
         const embed = this.client.util.embed()
@@ -156,7 +156,7 @@ class PokerGame extends Game {
         ]);
 
         embed.addField('Hands', hands.map(hand => {
-            const name = this.guild.member(hand.player).displayName;
+            const name = this.guild.member(hand.player).user.tag;
             const desc = hand.descr.replace(',', ':').replace(/'/g, '').replace(/&/g, 'and');
             const cards = hand.original.map(card => `${card.toEmojiForm()}\u2000(${card})`).join('\n');
             return `**${name}**: ${desc}\n${cards}`;
@@ -198,7 +198,7 @@ class PokerGame extends Game {
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         await this.channel.send([
-            `**${player.displayName}** has bet $**${amount}**.`,
+            `**${player.user.tag}** has bet $**${amount}**.`,
             `The total pool is now $**${this.tableMoney}**.`
         ]);
 
@@ -213,7 +213,7 @@ class PokerGame extends Game {
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         await this.channel.send([
-            `**${player.displayName}** has decided to check.`,
+            `**${player.user.tag}** has decided to check.`,
             `The total pool is currently $**${this.tableMoney}**.`
         ]);
 
@@ -232,7 +232,7 @@ class PokerGame extends Game {
         }
 
         await this.channel.send([
-            `**${player.displayName}** has decided to fold.`,
+            `**${player.user.tag}** has decided to fold.`,
             `The total pool is currently $**${this.tableMoney}**.`
         ]);
 
@@ -247,7 +247,7 @@ class PokerGame extends Game {
         const player = this.currentPlayer;
 
         await this.channel.send([
-            `**${player.displayName}** had gone all-in and is skipping their turn.`,
+            `**${player.user.tag}** had gone all-in and is skipping their turn.`,
             `The total pool is currently $**${this.tableMoney}**.`
         ]);
 
@@ -273,7 +273,7 @@ class PokerGame extends Game {
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         await this.channel.send([
-            `**${player.displayName}** has gone all-in!`,
+            `**${player.user.tag}** has gone all-in!`,
             `The total pool is now $**${this.tableMoney}**.`
         ]);
 
