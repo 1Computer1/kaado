@@ -4,12 +4,7 @@ class PingCommand extends Command {
     constructor() {
         super('ping', {
             aliases: ['ping'],
-            category: 'general',
-            description: [
-                'ping',
-                'Pings the bot for its RTT ping and heartbeat ping.',
-                'The lower the two numbers, the better!'
-            ]
+            category: 'general'
         });
     }
 

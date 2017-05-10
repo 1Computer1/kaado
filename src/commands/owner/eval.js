@@ -20,10 +20,6 @@ class EvalCommand extends Command {
                     id: 'code',
                     match: 'content'
                 }
-            ],
-            description: [
-                'eval <code...>',
-                'Evaluate JS code.'
             ]
         });
     }

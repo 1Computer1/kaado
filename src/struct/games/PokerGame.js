@@ -243,20 +243,6 @@ class PokerGame extends Game {
         return this.processNextTurn();
     }
 
-    async skip() {
-        const player = this.currentPlayer;
-
-        await this.channel.send([
-            `**${player.user.tag}** had gone all-in and is skipping their turn.`,
-            `The total pool is currently $**${this.tableMoney}**.`
-        ]);
-
-        this.previousBets.unshift(this.startingBalance);
-        if (this.previousBets.length > this.players.size) this.previousBets.pop();
-
-        return this.processNextTurn();
-    }
-
     async allIn() {
         const player = this.currentPlayer;
         const prevBet = this.totalBets.get(player.id);
@@ -276,6 +262,20 @@ class PokerGame extends Game {
             `**${player.user.tag}** has gone all-in!`,
             `The total pool is now $**${this.tableMoney}**.`
         ]);
+
+        return this.processNextTurn();
+    }
+
+    async skip() {
+        const player = this.currentPlayer;
+
+        await this.channel.send([
+            `**${player.user.tag}** had gone all-in and is skipping their turn.`,
+            `The total pool is currently $**${this.tableMoney}**.`
+        ]);
+
+        this.previousBets.unshift(this.startingBalance);
+        if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         return this.processNextTurn();
     }

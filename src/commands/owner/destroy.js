@@ -13,11 +13,6 @@ class DestroyCommand extends Command {
                     match: 'flag',
                     prefix: '--force'
                 }
-            ],
-            description: [
-                'destroy',
-                'Disconnects the bot.',
-                'Include `--force` to force an exit.'
             ]
         });
     }

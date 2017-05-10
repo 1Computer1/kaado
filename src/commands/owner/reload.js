@@ -17,10 +17,6 @@ class ReloadCommand extends Command {
                     type: [['command', 'cmd', 'c'], ['inhibitor', 'inhib', 'inh', 'i'], ['listener', 'lis', 'l']],
                     default: 'command'
                 }
-            ],
-            description: [
-                'reload <category> [type]',
-                'Reloads a category of the provided type.'
             ]
         });
     }

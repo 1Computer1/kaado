@@ -7,7 +7,7 @@ class PokerCommand extends Command {
             args: [
                 {
                     id: 'option',
-                    type: ['start', ['bet', 'b'], ['check', 'c'], ['fold', 'f'], ['skip', 's'], ['allIn', 'a']],
+                    type: ['start', ['bet', 'b'], ['check', 'c'], ['fold', 'f'], ['skip', 's'], ['allIn', 'all-in', 'a']],
                     default: 'start'
                 },
                 {
@@ -21,12 +21,8 @@ class PokerCommand extends Command {
                     }
                 }
             ],
-            category: 'poker',
-            channelRestriction: 'guild',
-            description: [
-                'poker',
-                'Starts a game of poker or joins an existing one.'
-            ]
+            category: 'games',
+            channelRestriction: 'guild'
         });
     }
 
