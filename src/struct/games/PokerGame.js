@@ -46,16 +46,14 @@ class PokerGame extends Game {
             text,
             `**${this.currentPlayer.displayName}** has a balance of $**${this.playerBalances.get(this.currentPlayer.id)}**.`,
             '',
-            `Type \`${prefix}bet <amount>\` to bet.`,
-            `Type \`${prefix}check\` to check.`,
-            `Type \`${prefix}fold\` to fold.`,
-            `Type \`${prefix}allIn\` to go all-in.`,
-            `Type \`${prefix}skip\` to skip after an all-in.`
+            `Type \`${prefix}p bet <amount>\` to bet.`,
+            `Type \`${prefix}p check\` to check.`,
+            `Type \`${prefix}p fold\` to fold.`,
+            `Type \`${prefix}p allIn\` to go all-in.`,
+            `Type \`${prefix}p skip\` to skip after an all-in.`
         ]);
 
-        // File sending is weird.
-        // No idea if this is correct.
-        const options = {};
+        const options = { embed };
 
         if (this.tableCards.length && withCards) {
             const image = await Deck.drawCards(this.tableCards);
@@ -71,7 +69,6 @@ class PokerGame extends Game {
             .addField('Cards on Table', this.tableCards.map(card => `${card.toEmojiForm()}\u2000(${card})`));
         }
 
-        options.embed = embed;
         return this.channel.send(`${this.currentPlayer}, it is your turn!`, options);
     }
 
