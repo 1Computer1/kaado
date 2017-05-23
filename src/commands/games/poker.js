@@ -77,7 +77,7 @@ class PokerCommand extends Command {
 
         if (option === 'skip') return this.execSkip(game, message);
 
-        if (game.playerAllIn.has(game.currentPlayer.id)) {
+        if (game.allInPlayers.has(game.currentPlayer.id)) {
             return message.send('You can only skip due to having gone all-in.');
         }
 
@@ -117,7 +117,7 @@ class PokerCommand extends Command {
     }
 
     execSkip(game, message) {
-        if (!game.playerAllIn.has(game.currentPlayer.id)) {
+        if (!game.allInPlayers.has(game.currentPlayer.id)) {
             return message.send('You cannot skip unless you have gone all-in.');
         }
 

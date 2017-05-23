@@ -21,10 +21,8 @@ class PokerGame extends Game {
         this.playerCards = new Map();
         this.playerBalances = new Map();
 
-        // Eventually this will be a Map of people's starting balances for when there is an actual economy.
-        // For now, everyone has a thousand dollars! Woo!
-        this.startingBalance = 1000;
-        this.playerAllIn = new Set();
+        this.startingBalances = new Map();
+        this.allInPlayers = new Set();
 
         this.totalBets = new Map();
         this.roundBets = new Map();
@@ -79,8 +77,13 @@ class PokerGame extends Game {
         for (const playerID of this.players) {
             const cards = this.deck.draw(2);
 
+            // Replace the 1000 with actual balances later.
+            this.startingBalances.set(playerID, 1000);
+
+            const startingBalance = this.startingBalances.get(playerID);
+            this.playerBalances.set(playerID, startingBalance);
+
             this.playerCards.set(playerID, cards);
-            this.playerBalances.set(playerID, this.startingBalance);
             this.totalBets.set(playerID, 0);
 
             const imagePromise = Deck.drawCards(cards);
@@ -106,7 +109,7 @@ class PokerGame extends Game {
 
         this.turnTimer = setTimeout(() => {
             const player = this.currentPlayer;
-            if (this.playerAllIn.has(player.id)) {
+            if (this.allInPlayers.has(player.id)) {
                 this.skip();
             } else {
                 this.fold(true);
@@ -158,7 +161,7 @@ class PokerGame extends Game {
         }
 
         const winners = Hand.winners(hands).map(hand => {
-            return this.guild.member(hand.player).user.tag;
+            return this.client.users.get(hand.player).tag;
         });
 
         const embed = this.client.util.embed()
@@ -170,7 +173,7 @@ class PokerGame extends Game {
         ]);
 
         embed.addField('Hands', hands.map(hand => {
-            const name = this.guild.member(hand.player).user.tag;
+            const name = this.client.users.get(hand.player).tag;
             const desc = hand.descr.replace(',', ':').replace(/'/g, '').replace(/&/g, 'and');
             const cards = hand.original.map(card => `${card.toEmojiForm()}\u2000(${card})`).join('\n');
             return `**${name}**: ${desc}\n${cards}`;
@@ -194,9 +197,10 @@ class PokerGame extends Game {
     }
 
     async bet(amount) {
-        if (amount === this.startingBalance) return this.allIn();
-
         const player = this.currentPlayer;
+
+        const startingBalance = this.startingBalances.get(player.id);
+        if (amount === startingBalance) return this.allIn();
 
         const prevBal = this.playerBalances.get(player.id);
         const prevBet = this.roundBets.get(player.id) || 0;
@@ -259,17 +263,18 @@ class PokerGame extends Game {
 
     async allIn() {
         const player = this.currentPlayer;
+        const startingBalance = this.startingBalances.get(player.id);
         const prevBet = this.totalBets.get(player.id);
 
-        this.playerAllIn.add(player.id);
+        this.allInPlayers.add(player.id);
         this.playerBalances.set(player.id, 0);
-        this.roundBets.set(player.id, this.startingBalance);
-        this.totalBets.set(player.id, this.startingBalance);
+        this.roundBets.set(player.id, startingBalance);
+        this.totalBets.set(player.id, startingBalance);
 
         this.tableMoney -= prevBet;
-        this.tableMoney += this.startingBalance;
+        this.tableMoney += startingBalance;
 
-        this.previousBets.unshift(this.startingBalance);
+        this.previousBets.unshift(startingBalance);
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         await this.channel.send([
@@ -288,7 +293,8 @@ class PokerGame extends Game {
             `The total pool is currently $**${this.tableMoney}**.`
         ]);
 
-        this.previousBets.unshift(this.startingBalance);
+        const startingBalance = this.startingBalances.get(player.id);
+        this.previousBets.unshift(startingBalance);
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         return this.processNextTurn();
@@ -305,7 +311,7 @@ class PokerGame extends Game {
         clearTimeout(this.turnTimer);
         this.turnTimer = setTimeout(() => {
             const player = this.currentPlayer;
-            if (this.playerAllIn.has(player.id)) {
+            if (this.allInPlayers.has(player.id)) {
                 this.skip();
             } else {
                 this.fold(true);
@@ -321,7 +327,7 @@ class PokerGame extends Game {
     }
 
     processNextRound() {
-        if (this.playerAllIn.size === this.players.size) {
+        if (this.allInPlayers.size === this.players.size) {
             for (let i = this.currentRound; i < 3; i++) {
                 const cards = this.deck.draw(i === 0 ? 4 : 2);
                 cards.shift();
