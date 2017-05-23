@@ -9,5 +9,4 @@ Files in the resources folder will not be upload to Github.
 - Actual currency system.
 - Force-starting games.
 - Timing out if someone takes too long to play.
-- Skipping to last round if everyone went all-in in poker.
 - More games and stuff.

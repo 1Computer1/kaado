@@ -84,6 +84,7 @@ class PokerGame extends Game {
 
             const imagePromise = Deck.drawCards(cards);
             const embed = this.client.util.embed()
+            .addField('Game Started', `A poker game has started in ${this.channel.name}.`)
             .addField('Your Cards', cards.map(card => `${card.toEmojiForm()}\u2000(${card})`))
             .setImage('attachment://cards.png');
 
@@ -297,6 +298,16 @@ class PokerGame extends Game {
     }
 
     processNextRound() {
+        if (this.playerAllIn.size === this.players.size) {
+            for (let i = this.currentRound; i < 3; i++) {
+                const cards = this.deck.draw(i === 0 ? 4 : 2);
+                cards.shift();
+                this.tableCards.push(...cards);
+            }
+
+            return this.endGame();
+        }
+
         if (this.currentRound === 0) {
             const cards = this.deck.draw(4);
             cards.shift();
