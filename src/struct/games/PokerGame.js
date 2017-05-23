@@ -17,6 +17,7 @@ class PokerGame extends Game {
         this.tableMoney = 0;
 
         this.currentTurn = 0;
+        this.turnTimer = null;
         this.playerCards = new Map();
         this.playerBalances = new Map();
 
@@ -84,7 +85,7 @@ class PokerGame extends Game {
 
             const imagePromise = Deck.drawCards(cards);
             const embed = this.client.util.embed()
-            .addField('Game Started', `A poker game has started in ${this.channel.name}.`)
+            .addField('Game Started', `A poker game has started in ${this.channel}.`)
             .addField('Your Cards', cards.map(card => `${card.toEmojiForm()}\u2000(${card})`))
             .setImage('attachment://cards.png');
 
@@ -102,10 +103,22 @@ class PokerGame extends Game {
         }
 
         await Promise.all(promises);
+
+        this.turnTimer = setTimeout(() => {
+            const player = this.currentPlayer;
+            if (this.playerAllIn.has(player.id)) {
+                this.skip();
+            } else {
+                this.fold(true);
+            }
+        }, 60000);
+
         return this.send('The poker game has started!', false);
     }
 
     async endGame() {
+        clearTimeout(this.turnTimer);
+        this.turnTimer = null;
         this.handler.removeGame(this);
 
         if (this.players.size === 1) {
@@ -221,7 +234,7 @@ class PokerGame extends Game {
         return this.processNextTurn();
     }
 
-    async fold() {
+    async fold(timeout = false) {
         const player = this.currentPlayer;
         this.players.delete(player.id);
 
@@ -233,7 +246,7 @@ class PokerGame extends Game {
         }
 
         await this.channel.send([
-            `**${player.user.tag}** has decided to fold.`,
+            `**${player.user.tag}** has ${timeout ? 'been forced' : 'decided'} to fold.`,
             `The total pool is currently $**${this.tableMoney}**.`
         ]);
 
@@ -289,6 +302,16 @@ class PokerGame extends Game {
     }
 
     processNextTurn() {
+        clearTimeout(this.turnTimer);
+        this.turnTimer = setTimeout(() => {
+            const player = this.currentPlayer;
+            if (this.playerAllIn.has(player.id)) {
+                this.skip();
+            } else {
+                this.fold(true);
+            }
+        }, 60000);
+
         if (this.previousBets.length === this.players.size && new Set(this.previousBets).size === 1) {
             return this.processNextRound();
         }

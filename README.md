@@ -7,6 +7,4 @@ Files in the resources folder will not be upload to Github.
 
 ### Todo:  
 - Actual currency system.
-- Force-starting games.
-- Timing out if someone takes too long to play.
 - More games and stuff.
