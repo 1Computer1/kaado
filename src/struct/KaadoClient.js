@@ -27,25 +27,22 @@ class KaadoClient extends AkairoClient {
     build() {
         super.build();
         this.gameHandler = new GameHandler(this, './src/struct/games/');
+        this.addTypes();
+        return this;
+    }
 
-        this.commandHandler.resolver.addTypes({
+    addTypes() {
+        const resolver = this.commandHandler.resolver;
+        resolver.addTypes({
             game: word => {
                 if (!word) return null;
-                return this.commandHandler.modules.find(cmd => {
-                    if (cmd.category.id !== 'games') return false;
-
-                    for (const alias of cmd.aliases) {
-                        if (word.toLowerCase() === alias.toLowerCase()) {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                word = word.toLowerCase();
+                return this.gameHandler.modules.find(game => {
+                    return game.id.toLowerCase() === word
+                    || game.name.toLowerCase() === word;
                 });
             }
         });
-
-        return this;
     }
 
     loadAll() {

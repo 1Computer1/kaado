@@ -1,10 +1,9 @@
 const { AkairoModule } = require('discord-akairo');
 
 class Game extends AkairoModule {
-    constructor(name, message, players, options = {}) {
-        super(name, null, options);
+    constructor(id, message, players, options = {}) {
+        super(id, null, options);
 
-        this.name = name;
         this.message = message;
         this.channel = message.channel;
 
@@ -18,6 +17,7 @@ class Game extends AkairoModule {
         this.startingPlayers = new Set(players);
         this.players = new Set(players);
 
+        this.name = options.name || this.id;
         this.minPlayers = options.minPlayers || 1;
         this.maxPlayers = options.maxPlayers || 2;
         this.waitTime = options.waitTime || 30;
@@ -79,7 +79,7 @@ class Game extends AkairoModule {
         this.players.add(player.id);
         this.startingPlayers.add(player.id);
 
-        const gameMap = this.handler.ongoingGames.get('poker');
+        const gameMap = this.handler.ongoingGames.get(this.id);
         const channels = new Map();
         channels.set(this.channel.id, this);
         gameMap.set(player.id, channels);

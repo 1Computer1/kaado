@@ -28,6 +28,7 @@ class GameHandler extends AkairoHandler {
             return undefined;
         }
 
+        mod.id = mod.ID;
         if (this.modules.has(mod.id)) throw new Error(`${this.classToHandle.name} ${mod.id} already loaded.`);
 
         this._apply(mod, thing);
@@ -53,7 +54,7 @@ class GameHandler extends AkairoHandler {
     }
 
     addGame(game) {
-        const gameMap = this.ongoingGames.get(game.name);
+        const gameMap = this.ongoingGames.get(game.id);
         for (const playerID of game.startingPlayers) {
             const channels = gameMap.get(playerID) || new Map();
             channels.set(game.channel.id, game);
@@ -62,7 +63,7 @@ class GameHandler extends AkairoHandler {
     }
 
     removeGame(game) {
-        const gameMap = this.ongoingGames.get(game.name);
+        const gameMap = this.ongoingGames.get(game.id);
         for (const playerID of game.startingPlayers) {
             const channels = gameMap.get(playerID);
             channels.delete(game.channel.id);
@@ -81,8 +82,8 @@ class GameHandler extends AkairoHandler {
         return null;
     }
 
-    findExisting(name, channel) {
-        const gameMap = this.ongoingGames.get(name);
+    findExisting(id, channel) {
+        const gameMap = this.ongoingGames.get(id);
         for (const channels of gameMap.values()) {
             for (const game of channels.values()) {
                 if (game.channel.id === channel.id) return game;

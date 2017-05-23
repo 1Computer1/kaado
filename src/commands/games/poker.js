@@ -32,7 +32,7 @@ class PokerCommand extends Command {
 
         if (option === 'start') {
             if (conflictGame) {
-                if (conflictGame.name !== 'poker') {
+                if (conflictGame.id !== 'poker') {
                     return message.send(`You are already in a ${conflictGame.name} game.`);
                 }
 
@@ -53,7 +53,7 @@ class PokerCommand extends Command {
             return game.handleMessage(message);
         }
 
-        if (conflictGame && conflictGame.name !== 'poker') {
+        if (conflictGame && conflictGame.id !== 'poker') {
             return message.send(`You are already in a ${conflictGame.name} game.`);
         }
 
