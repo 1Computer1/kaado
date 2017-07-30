@@ -4,7 +4,7 @@ const { Command } = require('discord-akairo');
 const Logger = require('../../util/Logger');
 const Deck = require('../../struct/Deck');
 const Card = require('../../struct/Card');
-const PokerGame = require('../../struct/games/PokerGame');
+const PokerGame = require('../../games/PokerGame');
 const util = require('util');
 const data = {};
 

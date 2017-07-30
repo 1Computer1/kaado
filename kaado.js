@@ -1,4 +1,5 @@
 require('./src/util/Extensions');
+require('moment-duration-format');
 
 const KaadoClient = require('./src/struct/KaadoClient');
 

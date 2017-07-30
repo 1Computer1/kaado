@@ -21,6 +21,7 @@ class Game extends AkairoModule {
         this.minPlayers = options.minPlayers || 1;
         this.maxPlayers = options.maxPlayers || 2;
         this.waitTime = options.waitTime || 30;
+        this.entryFee = options.entryFee || 0;
 
         this.startTime = message.createdTimestamp;
         this.countdown = setTimeout(async () => {
@@ -35,6 +36,7 @@ class Game extends AkairoModule {
             }
 
             await this.channel.send(`${this.waitTime} seconds has passed, the game will now start.`);
+            await this.preGame();
             await this.startGame();
             this.started = true;
         }, this.waitTime * 1000);
@@ -45,6 +47,17 @@ class Game extends AkairoModule {
         this.started = false;
     }
 
+    async preGame() {
+        if (this.entryFee) {
+            for (const playerID of this.players) {
+                const bal = this.client.profiles.get(playerID, 'balance', 0);
+                await this.client.profiles.set(playerID, 'balance', bal - this.entryFee); // eslint-disable-line no-await-in-loop
+            }
+
+            await this.channel.send(`${this.entryFee.toLocaleString()} \\🍬 has been collected from each player.`);
+        }
+    }
+
     startGame() {
         throw new Error(`${this.constructor.name}#startGame not implemented.`);
     }
@@ -52,6 +65,15 @@ class Game extends AkairoModule {
     async handleMessage(message) {
         if (this.initiated) {
             return message.send(`A ${this.name} game is already ongoing here, you cannot join it.`);
+        }
+
+        const conflictGame = this.handler.findGame(message.member, message.channel);
+        if (conflictGame && conflictGame.id === 'poker') {
+            return message.send(`You have already joined this ${this.name} game.`);
+        }
+
+        if (this.entryFee && this.client.profiles.get(message.member.id, 'balance', 0) < this.entryFee) {
+            return message.send(`You need ${this.entryFee.toLocaleString()} \\🍬 to join this game.`);
         }
 
         this.addPlayer(message.member);
@@ -64,6 +86,7 @@ class Game extends AkairoModule {
             await message.send(`You have joined the ${this.name} game.`);
             await this.channel.send('Maximum players reached, the game will now start.');
 
+            await this.preGame();
             const m = await this.startGame();
             this.started = true;
             return m;

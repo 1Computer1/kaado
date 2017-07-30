@@ -16,7 +16,7 @@ class HelpCommand extends Command {
     }
 
     exec(message, { game }) {
-        const prefix = this.handler.prefix();
+        const prefix = this.handler.prefix(message);
 
         if (!game) {
             const embed = this.client.util.embed()

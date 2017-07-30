@@ -36,9 +36,8 @@ class GameHandler extends AkairoHandler {
         return mod;
     }
 
-    setup() {
-        this.loadAll();
-
+    loadAll() {
+        super.loadAll();
         for (const id of this.modules.keys()) {
             this.ongoingGames.set(id, new Map());
         }
@@ -46,9 +45,9 @@ class GameHandler extends AkairoHandler {
         return this;
     }
 
-    createGame(name, message, players = [message.member.id]) {
+    createGame(name, message, players = [message.member.id], options = {}) {
         const GameConstructor = this.modules.get(name);
-        const game = new GameConstructor(message, players);
+        const game = new GameConstructor(message, players, options);
         this.addGame(game);
         return game;
     }

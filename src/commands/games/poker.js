@@ -4,6 +4,8 @@ class PokerCommand extends Command {
     constructor() {
         super('poker', {
             aliases: ['poker', 'p'],
+            category: 'games',
+            channelRestriction: 'guild',
             args: [
                 {
                     id: 'option',
@@ -12,37 +14,22 @@ class PokerCommand extends Command {
                 },
                 {
                     id: 'amount',
-                    type: (word, message, args) => {
-                        if (args.option === 'bet') {
-                            return this.handler.resolver.type('integer')(word);
-                        }
-
-                        return '';
-                    }
+                    type: 'integer'
                 }
-            ],
-            category: 'games',
-            channelRestriction: 'guild'
+            ]
         });
     }
 
     exec(message, { option, amount }) {
-        const gameHandler = this.client.gameHandler;
-        const conflictGame = gameHandler.findGame(message.member, message.channel);
-
         if (option === 'start') {
-            if (conflictGame) {
-                if (conflictGame.id !== 'poker') {
-                    return message.send(`You are already in a ${conflictGame.name} game.`);
-                }
-
-                return message.send('You have already joined this poker game.');
-            }
-
-            const game = gameHandler.findExisting('poker', message.channel);
+            const game = this.client.gameHandler.findExisting('poker', message.channel);
 
             if (!game) {
-                const createdGame = gameHandler.createGame('poker', message);
+                if (amount < 1 || amount > 1000) {
+                    return message.send('Please provide how much \\🍬 each person should bring in, between 1 and 1000.');
+                }
+
+                const createdGame = this.client.gameHandler.createGame('poker', message, [message.member.id], { entryFee: amount });
                 return message.send([
                     'A new poker game has been created.',
                     `A maximum of ${createdGame.maxPlayers} players can play.`,
@@ -53,11 +40,7 @@ class PokerCommand extends Command {
             return game.handleMessage(message);
         }
 
-        if (conflictGame && conflictGame.id !== 'poker') {
-            return message.send(`You are already in a ${conflictGame.name} game.`);
-        }
-
-        const game = gameHandler.findExisting('poker', message.channel);
+        const game = this.client.gameHandler.findExisting('poker', message.channel);
 
         if (!game) {
             return message.send('A poker game does not exist to play on.');
@@ -85,12 +68,8 @@ class PokerCommand extends Command {
     }
 
     execBet(game, message, amount) {
-        if (amount < 1) {
-            return message.send('You are not allowed to bet that little money!');
-        }
-
-        if (amount > 1000) {
-            return message.send('You are not allowed to bet that much money!');
+        if (amount < 1 || amount > 1000) {
+            return message.send('You can only bet between 1 and 1000 \\🍬');
         }
 
         if (game.playerBalances.get(game.currentPlayer.id) + game.roundBets.get(game.currentPlayer.id) - amount < 0) {
@@ -98,7 +77,7 @@ class PokerCommand extends Command {
         }
 
         if (amount !== game.previousBet && amount < game.previousBet * 2) {
-            return message.send(`You need to bet equal or at least twice the previous bet of $**${game.previousBet}**!`);
+            return message.send(`You need to bet equal or at least twice the previous bet of **${game.previousBet}** \\🍬`);
         }
 
         return game.bet(amount);

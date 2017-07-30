@@ -1,19 +1,27 @@
 const { AkairoClient } = require('discord-akairo');
+const path = require('path');
+
 const Deck = require('./Deck');
 const GameHandler = require('./GameHandler');
+
+const Database = require('./Database');
+const Provider = require('./Provider');
+const User = require('../models/users');
+const Guild = require('../models/guilds');
 
 class KaadoClient extends AkairoClient {
     constructor(config) {
         super({
             ownerID: config.ownerID,
-            // Per-guild prefixes, someday, maybe.
-            // It's mostly a personal bot for now.
-            prefix: config.prefix,
+            prefix: m => {
+                if (m.guild) return this.settings.get(m.guild.id, 'prefix', this.config.prefix);
+                return this.config.prefix;
+            },
             allowMention: true,
             emitters: { process },
-            commandDirectory: './src/commands/',
-            inhibitorDirectory: './src/inhibitors/',
-            listenerDirectory: './src/listeners/'
+            commandDirectory: path.join(__dirname, '..', 'commands'),
+            inhibitorDirectory: path.join(__dirname, '..', 'inhibitors'),
+            listenerDirectory: path.join(__dirname, '..', 'listeners')
         }, {
             messageCacheMaxSize: 50,
             disableEveryone: true,
@@ -21,19 +29,18 @@ class KaadoClient extends AkairoClient {
         });
 
         this.config = config;
-        this.gameHandler = null;
+        this.profiles = new Provider(User, 'profile');
+        this.settings = new Provider(Guild, 'settings');
+        this.gameHandler = new GameHandler(this, path.join(__dirname, '..', 'games'));
     }
 
     build() {
         super.build();
-        this.gameHandler = new GameHandler(this, './src/struct/games/');
-        this.addTypes();
-        return this;
+        return this.addTypes();
     }
 
     addTypes() {
-        const resolver = this.commandHandler.resolver;
-        resolver.addTypes({
+        this.commandHandler.resolver.addTypes({
             game: word => {
                 if (!word) return null;
                 word = word.toLowerCase();
@@ -43,16 +50,21 @@ class KaadoClient extends AkairoClient {
                 });
             }
         });
+
+        return this;
     }
 
     loadAll() {
         super.loadAll();
-        this.gameHandler.setup();
+        this.gameHandler.loadAll();
         return this;
     }
 
     async start() {
         await Deck.loadAssets();
+        await Database.authenticate();
+        await this.profiles.init();
+        await this.settings.init();
         return this.login(this.config.token);
     }
 }

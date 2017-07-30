@@ -13,7 +13,10 @@
     "discord.js": "github:hydrabolt/discord.js",
     "erlpack": "github:hammerandchisel/erlpack",
     "moment": "^2.18.1",
-    "pokersolver": "^2.1.2"
+    "moment-duration-format": "^1.3.0",
+    "pokersolver": "^2.1.2",
+    "sequelize": "^4.4.2",
+    "sqlite3": "^3.1.8"
   },
   "devDependencies": {
     "eslint": "^4.3.0"

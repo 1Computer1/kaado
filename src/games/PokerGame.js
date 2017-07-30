@@ -1,14 +1,15 @@
-const Deck = require('../Deck');
-const Game = require('../Game');
+const Deck = require('../struct/Deck');
+const Game = require('../struct/Game');
 const { Hand } = require('pokersolver');
 
 class PokerGame extends Game {
-    constructor(message, players) {
+    constructor(message, players, options) {
         super('poker', message, players, {
             name: 'poker',
             minPlayers: 2,
             maxPlayers: 8,
-            waitTime: 30
+            waitTime: 30,
+            entryFee: options.entryFee
         });
 
         this.deck = new Deck().fill().shuffle();
@@ -39,12 +40,12 @@ class PokerGame extends Game {
     }
 
     async send(text, withCards = true) {
-        const prefix = this.client.commandHandler.prefix();
+        const prefix = this.client.commandHandler.prefix(this.message);
 
         const embed = this.client.util.embed()
         .addField(`Round ${this.currentRound + 1}`, [
             text,
-            `**${this.currentPlayer.user.tag}** has a balance of $**${this.playerBalances.get(this.currentPlayer.id)}**.`,
+            `**${this.currentPlayer.user.tag}** has a balance of **${this.playerBalances.get(this.currentPlayer.id)}** \\🍬`,
             '',
             `Type \`${prefix}p bet <amount>\` to bet.`,
             `Type \`${prefix}p check\` to check.`,
@@ -78,9 +79,7 @@ class PokerGame extends Game {
         for (const playerID of this.players) {
             const cards = this.deck.draw(2);
 
-            // Replace the 1000 with actual balances later.
-            this.startingBalances.set(playerID, 1000);
-
+            this.startingBalances.set(playerID, this.entryFee);
             const startingBalance = this.startingBalances.get(playerID);
             this.playerBalances.set(playerID, startingBalance);
 
@@ -129,8 +128,11 @@ class PokerGame extends Game {
             const embed = this.client.util.embed()
             .addField('Game Results', [
                 'Everyone decided to fold!',
-                `**${this.getPlayer(0).user.tag}** wins $**${this.tableMoney}**!`
+                `**${this.getPlayer(0).user.tag}** wins **${this.tableMoney}** \\🍬`
             ]);
+
+            const bal = this.client.profiles.get(this.getPlayer(0).user.id, 'balance', 0);
+            await this.client.profiles.set(this.getPlayer(0).user.id, 'balance', bal + payout);
 
             const options = {};
 
@@ -162,16 +164,22 @@ class PokerGame extends Game {
         }
 
         const winners = Hand.winners(hands).map(hand => {
-            return this.client.users.get(hand.player).tag;
+            return this.client.users.get(hand.player);
         });
 
+        const payout = Math.floor(this.tableMoney / winners.length);
         const embed = this.client.util.embed()
         .addField('Game Results', [
             winners.length.plural('The winner is...', 'The winners are...'),
-            `**${winners.join('**, **')}**`,
+            `**${winners.map(w => w.tag).join('**, **')}**`,
             '',
-            `${winners.length.plural('They have', 'Each winner has')} won $**${Math.floor(this.tableMoney / winners.length)}**.`
+            `${winners.length.plural('They have', 'Each winner has')} won $**${payout}**.`
         ]);
+
+        for (const winner of winners) {
+            const bal = this.client.profiles.get(winner.id, 'balance', 0);
+            await this.client.profiles.set(winner.id, 'balance', bal + payout); // eslint-disable-line no-await-in-loop
+        }
 
         embed.addField('Hands', hands.map(hand => {
             const name = this.client.users.get(hand.player).tag;
@@ -200,8 +208,7 @@ class PokerGame extends Game {
     async bet(amount) {
         const player = this.currentPlayer;
 
-        const startingBalance = this.startingBalances.get(player.id);
-        if (amount === startingBalance) return this.allIn();
+        if (this.playerBalances.get(player.id) + this.roundBets.get(player.id) - amount === 0) return this.allIn();
 
         const prevBal = this.playerBalances.get(player.id);
         const prevBet = this.roundBets.get(player.id) || 0;
@@ -378,9 +385,9 @@ PokerGame.DESCRIPTION = [
     [
         'About',
         [
-            'To play poker, simply use `{p}poker`.',
+            'To play poker, simply use `{p}poker start <amount>`.',
             'There can be a minimum of 2 players, and a maximum of 8.',
-            'Everyone will start with $1000 for betting.'
+            'The <amount> is how much you want each player to bring in.'
         ]
     ],
     [
