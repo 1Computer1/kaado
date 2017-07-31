@@ -366,7 +366,7 @@ PokerGame.BLURB = [
     'Texas Hold\'em Poker',
     [
         'Poker! Everyone loves poker! Play with friends!',
-        'Don\'t bet away all your (unlimited) money!',
+        'Don\'t bet away all of your money!',
         'Cards are Touhou themed for extra cuteness!',
         '',
         'Play now by using `{p}poker`.',
