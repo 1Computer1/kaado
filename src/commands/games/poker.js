@@ -29,7 +29,7 @@ class PokerCommand extends Command {
                     return message.send('Please provide how much \\🍬 each person should bring in, between 1 and 1000.');
                 }
 
-                const prefix = this.client.commandHandler.prefix(this.message);
+                const prefix = this.client.commandHandler.prefix(message);
                 const createdGame = this.client.gameHandler.createGame('poker', message, [message.member.id], { entryFee: amount });
                 return message.send([
                     'A new poker game has been created.',
