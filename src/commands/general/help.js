@@ -22,7 +22,8 @@ class HelpCommand extends Command {
             const embed = this.client.util.embed()
             .addField('General Commands', [
                 `\`${prefix}ping\` - Pings the bot.`,
-                `\`${prefix}help\` - Gets this message or game info.`
+                `\`${prefix}help\` - Gets this message or game info.`,
+                `\`${prefix}prefix\` - Changes the prefix for commands.`
             ])
             .addField('Minigame Commands', [
                 `\`${prefix}slots\` - Plays a slot machine.\nUse \`${prefix}slots <1, 2, 5, 10>\` to play.\nUse \`${prefix}slots list\` for the payout table.`
