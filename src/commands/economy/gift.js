@@ -23,7 +23,11 @@ class GiftCommand extends Command {
         if (!amount) return message.send('You must provide how much \\🍬 to give.');
 
         if (message.author.id === target.id) {
-            return message.send('You can\'t gift yourself \\🍬');
+            return message.send('You can\'t gift yourself!');
+        }
+
+        if (amount < 0) {
+            return message.send('You can\'t take \\🍬 away!');
         }
 
         const sourceBalance = this.client.profiles.get(message.author.id, 'balance', 0);
