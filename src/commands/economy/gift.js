@@ -19,8 +19,12 @@ class GiftCommand extends Command {
     }
 
     async exec(message, { target, amount }) {
-        if (!target) return message.send('You must who to give \\🍬 to.');
+        if (!target) return message.send('You must provide who to give \\🍬 to.');
         if (!amount) return message.send('You must provide how much \\🍬 to give.');
+
+        if (message.author.id === target.id) {
+            return message.send('You can\'t gift yourself \\🍬');
+        }
 
         const sourceBalance = this.client.profiles.get(message.author.id, 'balance', 0);
         if (sourceBalance < amount) {
@@ -28,9 +32,9 @@ class GiftCommand extends Command {
         }
 
         const targetBalance = this.client.profiles.get(target.id, 'balance', 0);
-
         await this.client.profiles.set(message.author.id, 'balance', sourceBalance - amount);
         await this.client.profiles.set(target.id, 'balance', targetBalance + amount);
+
         return message.send(`You have gifted ${target} ${amount.toLocaleString()} \\🍬`);
     }
 }
