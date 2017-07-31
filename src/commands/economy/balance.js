@@ -5,21 +5,20 @@ class BalanceCommand extends Command {
         super('balance', {
             aliases: ['balance', 'bal', 'money'],
             category: 'economy',
-            channelRestriction: 'guild',
             args: [
                 {
-                    id: 'member',
-                    type: 'member',
-                    default: m => m.member
+                    id: 'user',
+                    type: 'relevant',
+                    default: m => m.author
                 }
             ]
         });
     }
 
-    exec(message, { member }) {
-        const balance = this.client.profiles.get(member.id, 'balance', 0);
+    exec(message, { user }) {
+        const balance = this.client.profiles.get(user.id, 'balance', 0);
 
-        const text = member.id === message.member.id ? 'Your' : `${member}'s`;
+        const text = user.id === message.author.id ? 'Your' : `${user}'s`;
         return message.send(`${text} balance is ${balance.toLocaleString()} \\🍬`);
     }
 }

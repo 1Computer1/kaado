@@ -6,29 +6,28 @@ class DailyCommand extends Command {
         super('daily', {
             aliases: ['daily'],
             category: 'economy',
-            channelRestriction: 'guild',
             args: [
                 {
-                    id: 'member',
-                    type: 'member',
-                    default: m => m.member
+                    id: 'user',
+                    type: 'relevant',
+                    default: m => m.author
                 }
             ]
         });
     }
 
-    async exec(message, { member }) {
-        const prevDaily = this.client.profiles.get(message.member.id, 'previousDaily');
+    async exec(message, { user }) {
+        const prevDaily = this.client.profiles.get(message.author.id, 'previousDaily');
         const timeDiff = (message.editedTimestamp || message.createdTimestamp) - prevDaily;
         const oneDay = 24 * 60 * 60 * 1000;
 
         if (!prevDaily || timeDiff >= oneDay) {
-            const amount = member.id === message.member.id ? 200 : 300;
-            const balance = this.client.profiles.get(member.id, 'balance', 0);
-            await this.client.profiles.set(member.id, 'balance', balance + amount);
-            await this.client.profiles.set(message.member.id, 'previousDaily', message.editedTimestamp || message.createdTimestamp);
+            const amount = user.id === message.author.id ? 200 : 300;
+            const balance = this.client.profiles.get(user.id, 'balance', 0);
+            await this.client.profiles.set(user.id, 'balance', balance + amount);
+            await this.client.profiles.set(message.author.id, 'previousDaily', message.editedTimestamp || message.createdTimestamp);
 
-            const text = member.id === message.member.id ? 'You have' : `${member} has`;
+            const text = user.id === message.author.id ? 'You have' : `${user} has`;
             return message.send(`${text} received ${amount.toLocaleString()} \\🍬`);
         }
 
