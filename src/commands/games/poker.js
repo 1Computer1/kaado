@@ -29,11 +29,13 @@ class PokerCommand extends Command {
                     return message.send('Please provide how much \\🍬 each person should bring in, between 1 and 1000.');
                 }
 
+                const prefix = this.client.commandHandler.prefix(this.message);
                 const createdGame = this.client.gameHandler.createGame('poker', message, [message.member.id], { entryFee: amount });
                 return message.send([
                     'A new poker game has been created.',
                     `A maximum of ${createdGame.maxPlayers} players can play.`,
-                    `The game will start in ${createdGame.waitTime} seconds.`
+                    `The game will start in ${createdGame.waitTime} seconds.`,
+                    `Join the game with \`${prefix}poker\`!`
                 ]);
             }
 
@@ -72,8 +74,8 @@ class PokerCommand extends Command {
             return message.send('You can only bet between 1 and 1000 \\🍬');
         }
 
-        if (game.playerBalances.get(game.currentPlayer.id) + game.roundBets.get(game.currentPlayer.id) - amount < 0) {
-            return message.send('You do not have enough money to bet!');
+        if (game.playerBalances.get(game.currentPlayer.id) + (game.roundBets.get(game.currentPlayer.id) || 0) - amount < 0) {
+            return message.send('You do not have enough \\🍬 to bet!');
         }
 
         if (amount !== game.previousBet && amount < game.previousBet * 2) {

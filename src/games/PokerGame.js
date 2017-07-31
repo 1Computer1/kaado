@@ -22,8 +22,6 @@ class PokerGame extends Game {
         this.turnTimer = null;
         this.playerCards = new Map();
         this.playerBalances = new Map();
-
-        this.startingBalances = new Map();
         this.allInPlayers = new Set();
 
         this.totalBets = new Map();
@@ -77,12 +75,9 @@ class PokerGame extends Game {
         const promises = [];
 
         for (const playerID of this.players) {
+            this.playerBalances.set(playerID, this.entryFee);
+
             const cards = this.deck.draw(2);
-
-            this.startingBalances.set(playerID, this.entryFee);
-            const startingBalance = this.startingBalances.get(playerID);
-            this.playerBalances.set(playerID, startingBalance);
-
             this.playerCards.set(playerID, cards);
             this.totalBets.set(playerID, 0);
 
@@ -173,7 +168,7 @@ class PokerGame extends Game {
             winners.length.plural('The winner is...', 'The winners are...'),
             `**${winners.map(w => w.tag).join('**, **')}**`,
             '',
-            `${winners.length.plural('They have', 'Each winner has')} won $**${payout}**.`
+            `${winners.length.plural('They have', 'Each winner has')} won **${payout}** \\🍬`
         ]);
 
         for (const winner of winners) {
@@ -208,7 +203,7 @@ class PokerGame extends Game {
     async bet(amount) {
         const player = this.currentPlayer;
 
-        if (this.playerBalances.get(player.id) + this.roundBets.get(player.id) - amount === 0) return this.allIn();
+        if (this.playerBalances.get(player.id) + (this.roundBets.get(player.id) || 0) - amount === 0) return this.allIn();
 
         const prevBal = this.playerBalances.get(player.id);
         const prevBet = this.roundBets.get(player.id) || 0;
@@ -224,8 +219,8 @@ class PokerGame extends Game {
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         await this.channel.send([
-            `**${player.user.tag}** has bet $**${amount}**.`,
-            `The total pool is now $**${this.tableMoney}**.`
+            `**${player.user.tag}** has bet **${amount}** \\🍬`,
+            `The total pool is now **${this.tableMoney}** \\🍬`
         ]);
 
         return this.processNextTurn();
@@ -240,7 +235,7 @@ class PokerGame extends Game {
 
         await this.channel.send([
             `**${player.user.tag}** has decided to check.`,
-            `The total pool is currently $**${this.tableMoney}**.`
+            `The total pool is currently **${this.tableMoney}** \\🍬`
         ]);
 
         return this.processNextTurn();
@@ -259,7 +254,7 @@ class PokerGame extends Game {
 
         await this.channel.send([
             `**${player.user.tag}** has ${timeout ? 'been forced' : 'decided'} to fold.`,
-            `The total pool is currently $**${this.tableMoney}**.`
+            `The total pool is currently **${this.tableMoney}** \\🍬`
         ]);
 
         if (this.players.size === 1) {
@@ -271,23 +266,22 @@ class PokerGame extends Game {
 
     async allIn() {
         const player = this.currentPlayer;
-        const startingBalance = this.startingBalances.get(player.id);
         const prevBet = this.totalBets.get(player.id);
 
         this.allInPlayers.add(player.id);
         this.playerBalances.set(player.id, 0);
-        this.roundBets.set(player.id, startingBalance);
-        this.totalBets.set(player.id, startingBalance);
+        this.roundBets.set(player.id, this.entryFee);
+        this.totalBets.set(player.id, this.entryFee);
 
         this.tableMoney -= prevBet;
-        this.tableMoney += startingBalance;
+        this.tableMoney += this.entryFee;
 
-        this.previousBets.unshift(startingBalance);
+        this.previousBets.unshift(this.entryFee);
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         await this.channel.send([
             `**${player.user.tag}** has gone all-in!`,
-            `The total pool is now $**${this.tableMoney}**.`
+            `The total pool is now **${this.tableMoney}** \\🍬`
         ]);
 
         return this.processNextTurn();
@@ -298,11 +292,10 @@ class PokerGame extends Game {
 
         await this.channel.send([
             `**${player.user.tag}** had gone all-in and is skipping their turn.`,
-            `The total pool is currently $**${this.tableMoney}**.`
+            `The total pool is currently **${this.tableMoney}** \\🍬`
         ]);
 
-        const startingBalance = this.startingBalances.get(player.id);
-        this.previousBets.unshift(startingBalance);
+        this.previousBets.unshift(this.entryFee);
         if (this.previousBets.length > this.players.size) this.previousBets.pop();
 
         return this.processNextTurn();
@@ -387,7 +380,7 @@ PokerGame.DESCRIPTION = [
         [
             'To play poker, simply use `{p}poker start <amount>`.',
             'There can be a minimum of 2 players, and a maximum of 8.',
-            'The <amount> is how much you want each player to bring in.'
+            'The <amount> is how much \\🍬 you want each player to bring in.'
         ]
     ],
     [
