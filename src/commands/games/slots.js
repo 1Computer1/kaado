@@ -64,7 +64,7 @@ class SlotsCommand extends Command {
         });
     }
 
-    exec(message, { option }) {
+    async exec(message, { option }) {
         if (option === 'list') {
             const embed = this.client.util.embed()
             .setTitle('Payout Table')
@@ -75,6 +75,11 @@ class SlotsCommand extends Command {
 
         if (isNaN(option) || ![1, 2, 5, 10].includes(option)) {
             return message.send('You can only play with 1, 2, 5, or 10 \\🍬');
+        }
+
+        const bal = this.client.profiles.get(message.author.id, 'balance', 0);
+        if (bal < option) {
+            return message.send('You do not have enough \\🍬 to play!');
         }
 
         const machine = new SlotMachine(3, symbols);
@@ -105,6 +110,7 @@ class SlotsCommand extends Command {
             points ? `You have earned ${payout.toLocaleString()} \\🍬` : 'Better luck next time!'
         );
 
+        await this.client.profiles.set(message.author.id, 'balance', bal - option + payout);
         return message.channel.send({ embed });
     }
 }
