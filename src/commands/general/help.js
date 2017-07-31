@@ -23,6 +23,9 @@ class HelpCommand extends Command {
             .addField('General Commands', [
                 `\`${prefix}ping\` - Pings the bot.`,
                 `\`${prefix}help\` - Gets this message or game info.`
+            ])
+            .addField('Minigame Commands', [
+                `\`${prefix}slots\` - Plays a slot machine.\nUse \`${prefix}slots <1, 2, 5, 10>\` to play.\nUse \`${prefix}slots list\` for the payout table.`
             ]);
 
             for (const g of this.client.gameHandler.modules.values()) {

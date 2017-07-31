@@ -380,7 +380,7 @@ PokerGame.DESCRIPTION = [
         [
             'To play poker, simply use `{p}poker start <amount>`.',
             'There can be a minimum of 2 players, and a maximum of 8.',
-            'The <amount> is how much \\🍬 you want each player to bring in.'
+            'The `<amount>` is how much \\🍬 you want each player to bring in.'
         ]
     ],
     [
