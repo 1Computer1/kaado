@@ -1,11 +1,10 @@
-const { AkairoClient } = require('discord-akairo');
+const { AkairoClient, SequelizeProvider } = require('discord-akairo');
 const path = require('path');
 
 const Deck = require('./Deck');
 const GameHandler = require('./GameHandler');
 
 const Database = require('./Database');
-const Provider = require('./Provider');
 const User = require('../models/users');
 const Guild = require('../models/guilds');
 
@@ -29,8 +28,8 @@ class KaadoClient extends AkairoClient {
         });
 
         this.config = config;
-        this.profiles = new Provider(User, 'profile');
-        this.settings = new Provider(Guild, 'settings');
+        this.profiles = new SequelizeProvider(User, { dataColumn: 'profile' });
+        this.settings = new SequelizeProvider(Guild, { dataColumn: 'settings' });
         this.gameHandler = new GameHandler(this, path.join(__dirname, '..', 'games'));
     }
 
