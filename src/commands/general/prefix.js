@@ -3,7 +3,7 @@ const { Command } = require('discord-akairo');
 class PrefixCommand extends Command {
     constructor() {
         super('prefix', {
-            aliases: ['prefix'],
+            aliases: ['prefix', 'setprefix'],
             category: 'general',
             channelRestriction: 'guild',
             args: [
