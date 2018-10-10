@@ -28,7 +28,7 @@ class HelpCommand extends Command {
             .addField('Economy Commands', [
                 `\`${prefix}balance\` - Shows yours or someone else's balance.`,
                 `\`${prefix}daily\` - Gets the daily 200 \\🍬 or gift someone a daily 300 \\🍬.`,
-                `\`${prefix}gift\` - Gifts someone a certain amount of money.`
+                `\`${prefix}gift\` - Gifts someone a certain amount of \\🍬.`
             ])
             .addField('Minigame Commands', [
                 `\`${prefix}slots\` - Plays a slot machine.\nUse \`${prefix}slots <1, 2, 5, 10>\` to play.\nUse \`${prefix}slots list\` for the payout table.`
